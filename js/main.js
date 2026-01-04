@@ -71,3 +71,49 @@ document.querySelectorAll('.card, .comparison-col, .philosophy-item').forEach((e
     el.style.transition = `opacity 0.5s ease ${i * 0.08}s, transform 0.5s ease ${i * 0.08}s`;
     observer.observe(el);
 });
+
+// Waitlist counter animation
+function animateCount(element, target, duration = 1500) {
+    const startTime = performance.now();
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(easeOut * target);
+
+        element.textContent = current;
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            element.textContent = target;
+        }
+    }
+
+    requestAnimationFrame(update);
+}
+
+// Avatar stagger animation
+function animateAvatars() {
+    const avatars = document.querySelectorAll('.waitlist-avatar');
+    avatars.forEach((avatar, i) => {
+        avatar.style.opacity = '0';
+        avatar.style.transform = 'scale(0.5) translateX(-10px)';
+        setTimeout(() => {
+            avatar.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            avatar.style.opacity = '1';
+            avatar.style.transform = 'scale(1) translateX(0)';
+        }, 800 + (i * 100));
+    });
+}
+
+// Trigger waitlist animations on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const countElement = document.querySelector('.count-number');
+    if (countElement) {
+        const target = parseInt(countElement.dataset.target, 10);
+        setTimeout(() => animateCount(countElement, target), 1000);
+    }
+    animateAvatars();
+});
