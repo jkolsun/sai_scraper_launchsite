@@ -9,17 +9,45 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Form handling with success state
+// Form handling with Formspree submission
+async function handleFormSubmit(form, successElement) {
+    const submitBtn = form.querySelector('.submit-btn');
+    const originalText = submitBtn.textContent;
+
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+            form.classList.add('submitted');
+            successElement.classList.add('active');
+            form.reset();
+        } else {
+            throw new Error('Form submission failed');
+        }
+    } catch (error) {
+        submitBtn.textContent = 'Error - Try Again';
+        submitBtn.disabled = false;
+        setTimeout(() => {
+            submitBtn.textContent = originalText;
+        }, 3000);
+    }
+}
+
 document.getElementById('beta-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    this.classList.add('submitted');
-    document.getElementById('beta-success').classList.add('active');
+    handleFormSubmit(this, document.getElementById('beta-success'));
 });
 
 document.getElementById('investor-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    this.classList.add('submitted');
-    document.getElementById('investor-success').classList.add('active');
+    handleFormSubmit(this, document.getElementById('investor-success'));
 });
 
 // Intersection Observer for fade-in
